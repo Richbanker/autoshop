@@ -1,4 +1,3 @@
-"use client";
 import Sort from "@/components/Sort";
 import CarList from "@/components/CarList";
 import Pagination from "@/components/Pagination";
