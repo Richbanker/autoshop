@@ -1,15 +1,11 @@
-import Sort from "@/components/Sort";
-import CarList from "@/components/CarList";
-import Pagination from "@/components/Pagination";
+// components/Sort.tsx
+"use client";
 
-export default function Home() {
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col gap-6 px-2 py-4 sm:px-4 sm:py-6">
-      <div className="max-w-7xl w-full mx-auto flex flex-col gap-6">
-        <Sort />
-        <CarList />
-        <Pagination />
-      </div>
-    </div>
-  );
+import { useSearchParams } from "next/navigation";
+
+export default function Sort() {
+  const params = useSearchParams();
+  const sort = params.get("sort");
+
+  return <div>Сортировка: {sort}</div>;
 }
