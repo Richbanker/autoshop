@@ -1,5 +1,8 @@
 # Автосалон — Next.js/React/TypeScript
 
+
+[![Просмотры README](https://vbr.nathanchung.dev/badge?page_id=Richbanker.autoshop&text=README_Views)](https://github.com/Richbanker/autoshop)
+
 ## Описание
 
 Веб-приложение автосалона с современным интерфейсом: карточки автомобилей, сортировка, пагинация, адаптивная верстка, интеграция с внешним API. Все состояния синхронизируются с URL. UI выполнен на Tailwind CSS, поддерживается мобильная версия.
