@@ -1,10 +1,13 @@
-/** @type {import('next').NextConfig} */
+/** @type {import("next").NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "ru-msk-dr3-1.store.cloud.mts.ru"
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ru-msk-dr3-1.store.cloud.mts.ru",
+      },
     ],
   },
 };
 
-module.exports = nextConfig; 
+module.exports = nextConfig;
