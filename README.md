@@ -1,5 +1,7 @@
 # Автосалон — Next.js/React/TypeScript
 
+[Открыть публичное демо](https://autoshop-azure.vercel.app/)
+
 
 [![Просмотры README](https://vbr.nathanchung.dev/badge?page_id=Richbanker.autoshop&text=README_Views)](https://github.com/Richbanker/autoshop)
 
