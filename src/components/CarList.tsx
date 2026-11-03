@@ -28,6 +28,7 @@ interface Car {
 
 interface ApiResponse {
   data: Car[];
+  source: "live" | "demo";
   meta: {
     page: number;
     pageCount: number;
@@ -40,6 +41,7 @@ const CarList = () => {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
 
   const page = searchParams.get("page") || "1";
   const sort = searchParams.get("sort") || "";
@@ -48,13 +50,19 @@ const CarList = () => {
   useEffect(() => {
     setLoading(true);
     setError(null);
+    setIsDemo(false);
     const params = new URLSearchParams({ _limit: "12", _page: page });
     if (sort) params.set("_sort", "price");
     if (order) params.set("_order", order);
     fetch(`/api/cars?${params.toString()}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
       .then((data: ApiResponse) => {
+        if (!Array.isArray(data.data)) throw new Error("Invalid catalog response");
         setCars(data.data || []);
+        setIsDemo(data.source === "demo");
         setLoading(false);
       })
       .catch(() => {
@@ -74,22 +82,24 @@ const CarList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div>
+      {isDemo && <p role="status" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950">Демонстрационный каталог: внешний источник сейчас недоступен. Автомобили и цены приведены для примера; продажа не осуществляется.</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {cars.map((car, idx) => (
         <div
           key={car.unique_id ? car.unique_id : `${car.mark_id}-${car.folder_id}-${idx}`}
           className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-200 p-4 flex flex-col gap-3 border border-gray-100 hover:border-blue-400 min-h-[420px]"
         >
           <div className="w-full aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center mb-2">
-            <Image
-              src={car.images?.image?.[0] || "/no-image.png"}
+            {car.images?.image?.[0] ? <Image
+              src={car.images.image[0]}
               alt={car.mark_id + " " + car.folder_id}
               width={320}
               height={240}
               className="object-cover w-full h-full"
               style={{ width: "100%", height: "auto" }}
               priority={false}
-            />
+            /> : <div role="img" aria-label="Фотография автомобиля отсутствует" className="flex h-full w-full items-center justify-center bg-slate-200 text-sm text-slate-600">Фото отсутствует</div>}
           </div>
           <div className="font-bold text-black text-lg truncate" title={car.mark_id + " " + car.folder_id}>
             {car.mark_id} {car.folder_id}
@@ -137,12 +147,12 @@ const CarList = () => {
             </span>
           </div>
           <div className="flex items-center gap-2 mt-4">
-            <button className="w-12 h-12 flex items-center justify-center bg-blue-50 rounded-xl hover:bg-blue-100 transition" title="В избранное">
+            <button disabled className="w-12 h-12 flex items-center justify-center bg-blue-50 rounded-xl opacity-50" title="Избранное пока недоступно">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 text-black">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487c-1.281-1.273-3.36-1.273-4.64 0l-.222.221-.221-.22c-1.282-1.274-3.36-1.274-4.64 0-1.272 1.27-1.272 3.331 0 4.602l.221.221 4.64 4.601 4.64-4.6.221-.222c1.272-1.27 1.272-3.332 0-4.602z" />
               </svg>
             </button>
-            <button className="w-12 h-12 flex items-center justify-center bg-blue-50 rounded-xl hover:bg-blue-100 transition" title="Сравнить">
+            <button disabled className="w-12 h-12 flex items-center justify-center bg-blue-50 rounded-xl opacity-50" title="Сравнение пока недоступно">
               {/* Весы (наклонённые, как на картинке пользователя) */}
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="3" className="w-7 h-7 text-black">
                 <circle cx="32" cy="16" r="3"/>
@@ -154,12 +164,13 @@ const CarList = () => {
                 <path d="M10 32 L16 52 A6 6 0 0 0 4 52 Z"/>
               </svg>
             </button>
-            <button className="flex-1 bg-blue-600 text-white rounded-xl px-4 py-3 font-bold hover:bg-blue-700 transition text-base" style={{minWidth:'120px'}}>
-              КУПИТЬ
+            <button disabled className="flex-1 bg-slate-400 text-white rounded-xl px-4 py-3 font-bold text-base" style={{minWidth:'120px'}} title="Покупки в портфолио-демо недоступны">
+              ДЕМО
             </button>
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 };
