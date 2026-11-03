@@ -21,8 +21,11 @@ const Pagination = () => {
     if (sort) params.set("_sort", "price");
     if (order) params.set("_order", order);
     fetch(`/api/cars?${params.toString()}`)
-      .then((res) => res.json())
-      .then((data) => setMeta(data.meta))
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => setMeta(data.meta ?? null))
       .catch(() => setMeta(null));
   }, [page, sort, order]);
 
