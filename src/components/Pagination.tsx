@@ -11,7 +11,8 @@ interface Meta {
 const Pagination = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const page = Number(searchParams.get("page") || 1);
+  const requestedPage = Number(searchParams.get("page") || 1);
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const sort = searchParams.get("sort") || "";
   const order = searchParams.get("order") || "";
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -38,18 +39,17 @@ const Pagination = () => {
     router.push(`/?${params.toString()}`);
   };
 
-  // Показываем максимум 12 страниц
+  // Показываем максимум 12 номеров, включая текущую страницу.
   const maxPages = 12;
-  const pages: (number | string)[] = (() => {
-    const arr: (number | string)[] = [];
-    if (meta.pageCount <= maxPages) {
-      for (let i = 1; i <= meta.pageCount; i++) arr.push(i);
-    } else {
-      for (let i = 1; i <= maxPages; i++) arr.push(i);
-      arr.push('...');
-    }
-    return arr;
-  })();
+  const visibleCount = Math.min(maxPages, meta.pageCount);
+  const firstPage = Math.max(1, Math.min(
+    page - Math.floor(visibleCount / 2),
+    meta.pageCount - visibleCount + 1
+  ));
+  const pages: (number | string)[] = [];
+  if (firstPage > 1) pages.push('...');
+  for (let i = 0; i < visibleCount; i++) pages.push(firstPage + i);
+  if (firstPage + visibleCount - 1 < meta.pageCount) pages.push('...');
 
   return (
     <div className="flex flex-nowrap overflow-x-auto justify-center gap-2 mt-4 pb-2 scrollbar-thin scrollbar-thumb-gray-300">
