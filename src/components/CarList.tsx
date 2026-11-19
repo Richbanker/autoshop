@@ -54,21 +54,25 @@ const CarList = () => {
     const params = new URLSearchParams({ _limit: "12", _page: page });
     if (sort) params.set("_sort", "price");
     if (order) params.set("_order", order);
-    fetch(`/api/cars?${params.toString()}`)
+    const controller = new AbortController();
+    fetch(`/api/cars?${params.toString()}`, { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
       .then((data: ApiResponse) => {
+        if (controller.signal.aborted) return;
         if (!Array.isArray(data.data)) throw new Error("Invalid catalog response");
         setCars(data.data || []);
         setIsDemo(data.source === "demo");
         setLoading(false);
       })
       .catch(() => {
+        if (controller.signal.aborted) return;
         setError("Ошибка загрузки данных");
         setLoading(false);
       });
+    return () => controller.abort();
   }, [page, sort, order]);
 
   if (loading) {
