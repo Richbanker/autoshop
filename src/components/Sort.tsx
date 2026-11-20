@@ -10,7 +10,11 @@ const sortOptions = [
 const Sort = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const order = searchParams.get("order") || "";
+  const sort = searchParams.get("sort");
+  const requestedOrder = searchParams.get("order");
+  const order = sort === "price" && (requestedOrder === "asc" || requestedOrder === "desc")
+    ? requestedOrder
+    : "";
   const isDefault = !order;
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
