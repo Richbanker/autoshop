@@ -21,9 +21,14 @@ const demoCars = [
   ["Geely", "Coolray", 2022, 2250000, 39000, "Кроссовер"],
 ] as const;
 
+function positiveInteger(value: string | null, fallback: number): number {
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number > 0 ? number : fallback;
+}
+
 function demoResponse(params: URLSearchParams) {
-  const page = Math.max(1, Number(params.get("_page")) || 1);
-  const limit = Math.min(50, Math.max(1, Number(params.get("_limit")) || 12));
+  const page = positiveInteger(params.get("_page"), 1);
+  const limit = Math.min(50, positiveInteger(params.get("_limit"), 12));
   const cars = demoCars.map(([mark_id, folder_id, year, price, run, body_type], index) => ({
     unique_id: index + 1, mark_id, folder_id, year, price, run, body_type,
     images: { image: [] }, modification_id: "Демо", complectation_name: "Пример комплектации",
